@@ -33,8 +33,7 @@ struct SumNorStruct
 {
 	vec3 sumNormal;
 	GLint sum = 0;
-	//vector<vec3> Consecutive_points;//相邻点
-	vector<GLint> Consecutive_points;
+	vector<GLint> Consecutive_points;//相邻点
 };
 
 // 表示一个用于渲染的最小实体
@@ -111,10 +110,10 @@ public:
 
 class MyObjLoader
 {
-	
 	vector<Vertex> primaryVector;//按照点的顺序，拥有顶点向量的
 	vector<int> vertice_index;
 	vector<vec3> temp_vertices;
+	SumNorStruct Norsum[40000];
 
 public:
 	bool loadFromFile(const char* path,
@@ -122,8 +121,7 @@ public:
 	{	
 		int v1, v2, v3;
 		int faceCount = 0;
-		SumNorStruct Norsum[40000];
-
+		
 		vector<Vertex> vertData1;//按顶点顺序存的带有法向量的顶点列表；
 		vec3 normal1;
 		
@@ -157,7 +155,9 @@ public:
 					ivtn >> vertComIndex;
 					vertComIndex--;
 					vertice_index.push_back(vertComIndex);
-					
+////////////////////////////////////////////////////////////////////////////////////////////////////
+					//以下是寻找相邻点的下标，和相邻点数量的Norsum动态数组
+
 					switch (faceCount % 3)
 					{
 					case 0:
@@ -209,7 +209,7 @@ public:
 			}
 		}
 
-		vertData = returnData(vertData,Norsum);
+		vertData = returnData(vertData);
 		
 		return true;
 	}
@@ -217,7 +217,7 @@ public:
 	vector<Vertex> laplace()
 	{
 		vector<Vertex> LavertData;
-		SumNorStruct Norsum[40000];
+		/*static SumNorStruct Norsum[40000];*/
 		vec3 normal1;
 		for (vector<GLuint>::size_type i = 0; i < temp_vertices.size(); ++i)
 		{
@@ -232,6 +232,13 @@ public:
 			vec3 minus = ave - temp_vertices[i];
 			minus *= 0.7;
 			temp_vertices[i] = temp_vertices[i] + minus;
+		}
+
+		for (int i = 0; i < 40000; ++i)
+		{
+			Norsum[i].Consecutive_points.clear();
+			Norsum[i].sum = 0;
+			Norsum[i].sumNormal = vec3(0, 0, 0);
 		}
 
 		GLint v1, v2, v3;
@@ -279,11 +286,11 @@ public:
 		vector<Vertex> vertData;
 		primaryVector.clear();
 
-		vector<Vertex>& vertdata2 = returnData(vertData, Norsum);
+		vector<Vertex>& vertdata2 = returnData(vertData);
 		return(vertdata2);
 	}
 
-	vector<Vertex>& returnData(vector<Vertex>& vertData, SumNorStruct Norsum[40000])
+	vector<Vertex>& returnData(vector<Vertex>& vertData)
 	{
 		Vertex vert;
 		for (vector<GLuint>::size_type i = 0; i < temp_vertices.size(); ++i) //按顶点顺序存好最终法向量

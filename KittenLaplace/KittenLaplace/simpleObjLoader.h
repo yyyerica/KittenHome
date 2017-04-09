@@ -230,14 +230,12 @@ public:
 			
 			ave /= size;
 			vec3 minus = ave - temp_vertices[i];
-			minus *= 0.7;
+			minus *= 0.9;
 			temp_vertices[i] = temp_vertices[i] + minus;
 		}
 
 		for (int i = 0; i < 40000; ++i)
 		{
-			Norsum[i].Consecutive_points.clear();
-			Norsum[i].sum = 0;
 			Norsum[i].sumNormal = vec3(0, 0, 0);
 		}
 
@@ -257,27 +255,12 @@ public:
 
 				normal1 = cross(temp_vertices[v2] - temp_vertices[v1], temp_vertices[v3] - temp_vertices[v1]);
 
-				Norsum[v1].sum++;
 				Norsum[v1].sumNormal += normal1;
-				if (find(Norsum[v1].Consecutive_points.begin(), Norsum[v1].Consecutive_points.end(), v2) == Norsum[v1].Consecutive_points.end())
-					Norsum[v1].Consecutive_points.push_back(v2);
-				if (find(Norsum[v1].Consecutive_points.begin(), Norsum[v1].Consecutive_points.end(), v3) == Norsum[v1].Consecutive_points.end())
-					Norsum[v1].Consecutive_points.push_back(v3);
 
-				Norsum[v2].sum++;
 				Norsum[v2].sumNormal += normal1;
-				if (find(Norsum[v2].Consecutive_points.begin(), Norsum[v2].Consecutive_points.end(), v1) == Norsum[v2].Consecutive_points.end())
-					Norsum[v2].Consecutive_points.push_back(v1);
-				if (find(Norsum[v2].Consecutive_points.begin(), Norsum[v2].Consecutive_points.end(), v3) == Norsum[v2].Consecutive_points.end())
-					Norsum[v2].Consecutive_points.push_back(v3);
 
-				Norsum[v3].sum++;
 				Norsum[v3].sumNormal += normal1;
-				if (find(Norsum[v3].Consecutive_points.begin(), Norsum[v3].Consecutive_points.end(), v2) == Norsum[v3].Consecutive_points.end())
-					Norsum[v3].Consecutive_points.push_back(v2);
-				if (find(Norsum[v3].Consecutive_points.begin(), Norsum[v3].Consecutive_points.end(), v1) == Norsum[v3].Consecutive_points.end())
-					Norsum[v3].Consecutive_points.push_back(v1);
-
+				
 				break;
 			}
 		}

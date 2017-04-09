@@ -230,7 +230,7 @@ public:
 			
 			ave /= size;
 			vec3 minus = ave - temp_vertices[i];
-			minus *= 0.9;
+			minus *= 0.7;
 			temp_vertices[i] = temp_vertices[i] + minus;
 		}
 

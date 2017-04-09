@@ -36,19 +36,14 @@ GLfloat lastFrame = 0.0f;
 MyObjLoader objloader;
 Camera camera(glm::vec3(0.0f, 0.0f, 2.0f));
 
-// 键盘回调函数原型声明
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+// 鼠标按下事件
+void cursor_position_callback(GLFWwindow* window, double x, double y);
 // 鼠标移动回调函数原型声明
 void mouse_move_callback(GLFWwindow* window, double xpos, double ypos);
 // 鼠标滚轮回调函数原型声明
 void mouse_scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 // 左右按键
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
-// 键盘回调函数原型声明
-void keyFun(GLFWwindow* pWnd, int nKey, int nScanCode, int nAction, int nMode);
-
-// 场景中移动
-//void do_movement();
 
 bool Rightclick = false;
 
@@ -70,7 +65,7 @@ int main(int argc, char** argv)
 
 	// 创建窗口
 	GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT,
-		"Demo of loading obj model", NULL, NULL);
+		"Kitten_Noisy", NULL, NULL);
 	if (!window)
 	{
 		std::cout << "Error::GLFW could not create winddow!" << std::endl;
@@ -80,20 +75,16 @@ int main(int argc, char** argv)
 	// 创建的窗口的context指定为当前context
 	glfwMakeContextCurrent(window);
 
-	// 注册窗口键盘事件回调函数
-	//glfwSetKeyCallback(window, key_callback)
-	glfwSetKeyCallback(window, keyFun);
-	// 注册鼠标事件回调函数
+
+	// 注册鼠标移动事件回调函数
 	glfwSetCursorPosCallback(window, mouse_move_callback);
 	// 注册鼠标滚轮事件回调函数
 	glfwSetScrollCallback(window, mouse_scroll_callback);
 	// 注册按下事件回调函数
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
 	// 鼠标拖动事件
-	//glfwSetCursorPosCallback(window, cursor_position_callback);
+	glfwSetCursorPosCallback(window, cursor_position_callback);
 
-	// 鼠标捕获 停留在程序内
-	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	// 初始化GLEW 获取OpenGL函数
 	glewExperimental = GL_TRUE; // 让glew获取所有拓展函数
@@ -106,7 +97,7 @@ int main(int argc, char** argv)
 		return -1;
 	}
 
-	// 设置视口参数
+	// 设置视口参数 (-1到1
 	glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 	//视口变换将位于-1.0到1.0范围的坐标变换到由glViewport函数所定义的坐标范围内
 
@@ -118,14 +109,7 @@ int main(int argc, char** argv)
 		std::system("pause");
 		exit(-1);
 	}
-	// Section2 准备纹理
-	//GLint textureId = TextureHelper::loadDDS("../../resources/models/cube/cube.dds");
 
-	//// Section3 建立Mesh对象
-	////Mesh mesh(vertData, textureId);
-	//Mesh mesh(vertData);
-	//// Section4 准备着色器程序
-	//Shader shader("cube.vertex", "cube.frag");
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
@@ -153,7 +137,7 @@ int main(int argc, char** argv)
 		shader.use();
 		//glm::mat4 projection = glm::perspective(camera.mouse_zoom, //→缩放
 		//	(GLfloat)(WINDOW_WIDTH) / WINDOW_HEIGHT, 1.0f, 100.0f); // 投影矩阵
-		glm::mat4 projection = glm::perspective(45.0f, //→缩放
+		glm::mat4 projection = glm::perspective(camera.mouse_zoom, //→缩放
 			(GLfloat)(WINDOW_WIDTH) / WINDOW_HEIGHT, 1.0f, 100.0f); // 投影矩阵
 		glm::mat4 view = camera.getViewMatrix(); // 视变换矩阵 →lookAt  主要移动旋转在这里
 		glUniformMatrix4fv(glGetUniformLocation(shader.programId, "projection"),
@@ -161,7 +145,7 @@ int main(int argc, char** argv)
 		glUniformMatrix4fv(glGetUniformLocation(shader.programId, "view"),
 			1, GL_FALSE, glm::value_ptr(view));
 		glm::mat4 model;
-		model = glm::scale(model, glm::vec3(0.8f, 0.8f, 0.8f));
+		model = glm::scale(model, glm::vec3(1.7f, 1.7f, 1.7f));
 		glUniformMatrix4fv(glGetUniformLocation(shader.programId, "model"),
 			1, GL_FALSE, glm::value_ptr(model));
 
@@ -200,65 +184,36 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 void mouse_move_callback(GLFWwindow* window, double xpos, double ypos)
 {
 	//camera.handleMouseMove(xpos, ypos);
+	//std::cout << "x :" << xpos << "    y :" << ypos<< std::endl;
+	double x = (2 * xpos) / WINDOW_WIDTH - 1;
+	double y = 1 - (2 * ypos) / WINDOW_HEIGHT;
+	camera.handleMouseTranslation(x, y);
 }
 
 // 由相机辅助类处理鼠标滚轮控制
 void mouse_scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	//camera.handleMouseScroll(yoffset);
+	camera.handleMouseScroll(yoffset);
 }
 
-void keyFun(GLFWwindow* pWnd, int nKey, int nScanCode, int nAction, int nMode)
+bool firstpress = true;
+double prex, prey;
+void cursor_position_callback(GLFWwindow* window, double x, double y) //x，y是根据窗口大小的坐标
 {
-
-	if (nAction == GLFW_PRESS)
+	if (firstpress)
 	{
-		//平移
-		if (nKey == GLFW_KEY_Q)
-		{
-			camera.handleTranslation(BACKWARD);
-		}
-		else if (nKey == GLFW_KEY_E)
-		{
-			camera.handleTranslation(FORWARD);
-		}
-		else if (nKey == GLFW_KEY_A)
-		{
-			camera.handleTranslation(LEFT);
-		}
-		else if (nKey == GLFW_KEY_D)
-		{
-			camera.handleTranslation(RIGHT);
-		}
-		else if (nKey == GLFW_KEY_W)
-		{
-			camera.handleTranslation(UP);
-		}
-		else if (nKey == GLFW_KEY_S)
-		{
-			camera.handleTranslation(DOWN);
-		}
-		//旋转
-		else if (nKey == GLFW_KEY_Z) //y轴顺时针
-		{
-			camera.handleTranslation(yClockwise);
-		}
-		else if (nKey == GLFW_KEY_C)//y轴逆时针
-		{
-			camera.handleTranslation(yAnticlockwise);
-		}
-		else if (nKey == GLFW_KEY_X)    // 还原视图
-		{
-			camera.handleTranslation(REBOUND);
-		}
+		prex = x;
+		prey = y;
+		firstpress = false;
 	}
-}
+	else
+	{
+		vec3 moveVec = vec3(x - prex, y - prey, 0);//移动的向量
 
-void cursor_position_callback(GLFWwindow* window, double x, double y)
-{
-	GLfloat xpos = float((x - WINDOW_WIDTH / 2) / WINDOW_WIDTH) * 2;
-	GLfloat ypos = float(0 - (y - WINDOW_HEIGHT / 2) / WINDOW_HEIGHT) * 2;
-	//camera.handleTranslation(xpos, ypos);
+	}
+		
+
+	camera.handleRotation();
 	return;
 }
 
@@ -267,11 +222,8 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 	if (action == GLFW_PRESS) switch (button)
 	{
 	case GLFW_MOUSE_BUTTON_LEFT:
-		//旋转
+		
 		break;
-		/*case GLFW_MOUSE_BUTTON_MIDDLE:
-		strcpy(msg, "Mosue middle button clicked!");
-		break;*/
 	case GLFW_MOUSE_BUTTON_RIGHT:
 		//拉普拉斯
 		Rightclick = true;

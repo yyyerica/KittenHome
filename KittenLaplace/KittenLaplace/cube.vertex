@@ -1,0 +1,26 @@
+#version 330 core
+
+layout(location = 0) in vec3 position;
+//layout(location = 1) in vec2 textCoord;
+//layout(location = 2) in vec3 normal;
+layout(location = 1) in vec3 normal;
+
+uniform mat4 projection;//投影矩阵
+uniform mat4 view;//观察矩阵
+uniform mat4 model;
+//在开始进行3D绘图时，我们首先创建一个模型矩阵。
+//这个模型矩阵包含了位移、缩放与旋转操作，它们会被应用到所有物体的顶点上，以变换它们到全局的世界空间。
+//通过将顶点坐标乘以这个模型矩阵，我们将该顶点坐标变换到世界坐标
+
+//out vec2 TextCoord;
+out vec3 Normal;
+out vec3 FragPos;
+
+void main()
+{
+	gl_Position = projection * view * model * vec4(position, 1.0);
+	//gl_Position = model * vec4(position, 1.0);
+	//TextCoord = textCoord;
+	FragPos = vec3(model * vec4(position, 1.0f));
+	Normal = normal;
+}

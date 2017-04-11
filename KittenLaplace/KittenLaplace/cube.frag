@@ -11,13 +11,12 @@ uniform vec3 lightPos;
 
 void main()
 {
-	vec3 objectColor = vec3(1.0,0.0,0.0);
+	vec3 objectColor = vec3(1.0,1.0,0.0);
 	//color = texture(tex, TextCoord);
 	//color = vec4(0.5, 1.0, 1.0, 1.0);
-
+	vec3 lightColor = vec3(1.0,1.0,1.0);
 //环境光
 	float ambientStrength = 0.1f;
-	vec3 lightColor = vec3(1.0,1.0,1.0);
 	vec3 ambient = ambientStrength * lightColor;//环境光颜色
 	//vec3 result = ambient * objectColor;
 	//color = vec4(result,1.0f);

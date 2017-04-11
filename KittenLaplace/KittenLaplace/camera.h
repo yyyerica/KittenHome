@@ -28,19 +28,23 @@ const GLfloat MOUSE_ZOOM = 45.0f; //传给perspective矩阵
 class Camera
 {
 public:
-	Camera(glm::vec3 pos = glm::vec3(0.0, 0.0, 2.0),
-		glm::vec3 viewup = glm::vec3(0.0, 1.0, 0.0),
-		glm::vec3 targetpos = glm::vec3(0.0, 0.0, 0.0))
-		:Position(pos), TargetPos(targetpos), Viewup(viewup), mouse_zoom(MOUSE_ZOOM)
+	//Camera(glm::vec3 pos = glm::vec3(0.0, 0.0, 2.0),
+	//	glm::vec3 viewup = glm::vec3(0.0, 1.0, 0.0),
+	//	glm::vec3 targetpos = glm::vec3(0.0, 0.0, 0.0))
+	//	:Position(pos), TargetPos(targetpos), Viewup(viewup), mouse_zoom(MOUSE_ZOOM)
+	//{
+
+	//}
+
+	Camera()
+		:Position(glm::vec3(0.0, 0.0, 2.0)), TargetPos(glm::vec3(0.0, 0.0, 0.0)), 
+		Viewup(glm::vec3(0.0, 1.0, 0.0)), mouse_zoom(MOUSE_ZOOM)
 	{
 
 	}
 
 
-
 public:
-	
-	GLdouble deep = 2;
 	
 	// 获取视变换矩阵
 	glm::mat4 getViewMatrix()
@@ -60,13 +64,15 @@ public:
 
 	void handleMouseTranslation(GLdouble x, GLdouble y)
 	{
-		Position = glm::vec3(-x, -y, deep);
+		Position = glm::vec3(-x, -y, 2);
 		TargetPos = glm::vec3(-x, -y, 0);
 	}
 
-	void handleRotation()
+	void handleRotation(GLdouble x, GLdouble y)
 	{
-
+		Position = glm::vec3(glm::sin(x * 180) , glm::sin(y * 90), glm::cos(x * 180));
+		//Viewup = ;
+		//std::cout << "x : " << Position.x << "y : " << Position.y << std::endl;
 	}
 
 	//相机属性

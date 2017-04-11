@@ -255,6 +255,8 @@ public:
 
 				normal1 = cross(temp_vertices[v2] - temp_vertices[v1], temp_vertices[v3] - temp_vertices[v1]);
 
+				//Norsum[v1].sumNormal = vec3(0, 0, 0);
+
 				Norsum[v1].sumNormal += normal1;
 
 				Norsum[v2].sumNormal += normal1;

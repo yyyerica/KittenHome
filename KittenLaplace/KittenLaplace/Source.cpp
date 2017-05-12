@@ -109,7 +109,7 @@ int main(int argc, char** argv)
 
 	//Section1 从obj文件加载数据
 	vector<Vertex> vertData;
-	if (!objloader.loadFromFile("kitten_noisy.obj", vertData))
+	if (!objloader.loadFromFile("dragon.obj", vertData))
 	{
 		std::cerr << "Could not load obj model, exit now.";
 		std::system("pause");
@@ -118,6 +118,7 @@ int main(int argc, char** argv)
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
+	Shader shader("cube.vertex", "cube.frag");
 	
 	// 开始主循环
 	while (!glfwWindowShouldClose(window))
@@ -136,16 +137,17 @@ int main(int argc, char** argv)
 		}
 
 		Mesh mesh(vertData);
-		Shader shader("cube.vertex", "cube.frag");
+		
 		shader.use();
 
 		glm::mat4 projection = glm::perspective(camera.mouse_zoom, //→缩放
 			(GLfloat)(WINDOW_WIDTH) / WINDOW_HEIGHT, 1.0f, 100.0f); // 投影矩阵
 		glm::mat4 view = camera.getViewMatrix(); // 视变换矩阵 →lookAt  主要移动旋转在这里
-		glUniformMatrix4fv(glGetUniformLocation(shader.programId, "projection"),
-			1, GL_FALSE, glm::value_ptr(projection));
-		glUniformMatrix4fv(glGetUniformLocation(shader.programId, "view"),
-			1, GL_FALSE, glm::value_ptr(view));
+
+		glm::mat4 projection_view = projection*view;
+		glUniformMatrix4fv(glGetUniformLocation(shader.programId, "projection_view"),
+			1, GL_FALSE, glm::value_ptr(projection_view));
+
 		glm::mat4 model;
 		//model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
 		model = glm::rotate(model, angley, glm::vec3(0.0f, 1.0f,0.0f));
@@ -156,8 +158,8 @@ int main(int argc, char** argv)
 		//光源位置
 		GLint lightPosLoc = glGetUniformLocation(shader.programId, "lightPos");
 		//glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z);
-		glUniform3f(lightPosLoc, 0, 0, 5);
-
+		glUniform3f(lightPosLoc, 1, 1, 1);
+		shader.use();
 		// 这里填写场景绘制代码
 		mesh.draw(shader); // 绘制物体
 
@@ -188,9 +190,7 @@ void mouse_move_callback(GLFWwindow* window, double xpos, double ypos)
 	}
 	else if (mode == 1)
 	{
-		/*x *= 0.5;
-		y *= 0.5;*/
-		
+
 		GLfloat xoffset = lastX - xpos;
 		GLfloat yoffset = lastY - ypos;
 		
@@ -204,7 +204,6 @@ void mouse_move_callback(GLFWwindow* window, double xpos, double ypos)
 		lastY = ypos;
 
 	}
-	
 }
 
 // 由相机辅助类处理鼠标滚轮控制

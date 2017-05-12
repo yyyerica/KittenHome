@@ -11,7 +11,7 @@ uniform vec3 lightPos;
 
 void main()
 {
-	vec3 objectColor = vec3(1.0,1.0,0.0);
+	vec3 objectColor = vec3(1.0,0.0,0.0);
 	//color = texture(tex, TextCoord);
 	//color = vec4(0.5, 1.0, 1.0, 1.0);
 	vec3 lightColor = vec3(1.0,1.0,1.0);
